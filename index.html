@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>พาสปอร์ตความดี</title>
+    <!-- โหลด pdfmake จาก CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .passport {
+            width: 600px;
+            height: 400px;
+            background-color: #2b3a67;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            display: flex;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        .left-page {
+            width: 50%;
+            padding: 20px;
+            border-right: 2px dashed #ffffff;
+        }
+        .right-page {
+            width: 50%;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .profile {
+            margin: 20px 0;
+        }
+        .profile img {
+            width: 100px;
+            height: 120px;
+            background-color: #fff;
+            border: 2px solid #ffd700;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        .info {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .stamp-area {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .stamp {
+            width: 60px;
+            height: 60px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2b3a67;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .stamp.active {
+            background-color: #ffd700;
+            transform: scale(1.1);
+        }
+        .save-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #ffd700;
+            color: #2b3a67;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .save-btn:hover {
+            background-color: #ffcc00;
+        }
+        .instructions {
+            width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-size: 14px;
+            color: #333;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #2b3a67;
+        }
+        .instructions ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .upload-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #ffd700;
+            color: #2b3a67;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .upload-btn:hover {
+            background-color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="passport" id="passport">
+        <div class="left-page">
+            <div class="header">
+                <h1>พาสปอร์ตความดี</h1>
+                <p>Good Deed Passport</p>
+                <p>เลขที่/No: GDP-001-2025</p>
+            </div>
+            <div class="profile">
+                <img id="profile-img" src="https://via.placeholder.com/100x120" alt="รูปภาพ">
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('image-upload').click()">อัปโหลดรูปภาพ</button>
+                <div class="info">
+                    <p>ชื่อ: [ใส่ชื่อของคุณ]</p>
+                    <p>นามสกุล: [ใส่นามสกุล]</p>
+                    <p>วันที่ออก: 16 มีนาคม 2568</p>
+                    <p>วันหมดอายุ: 16 มีนาคม 2570</p>
+                </div>
+            </div>
+        </div>
+        <div class="right-page">
+            <div class="header">
+                <h1>ตราประทับความดี</h1>
+                <p>Good Deed Stamps</p>
+            </div>
+            <div class="stamp-area">
+                <div class="stamp" onclick="toggleStamp(this)">1</div>
+                <div class="stamp" onclick="toggleStamp(this)">2</div>
+                <div class="stamp" onclick="toggleStamp(this)">3</div>
+                <div class="stamp" onclick="toggleStamp(this)">4</div>
+                <div class="stamp" onclick="toggleStamp(this)">5</div>
+                <div class="stamp" onclick="toggleStamp(this)">6</div>
+            </div>
+        </div>
+        <button class="save-btn" onclick="saveAsPDF()">บันทึกเป็น PDF</button>
+    </div>
+
+    <div class="instructions">
+        <h3>คำแนะนำการใช้งานพาสปอร์ตความดี</h3>
+        <ul>
+            <li>คลิกปุ่ม "อัปโหลดรูปภาพ" เพื่อเลือกและอัปโหลดรูปภาพของคุณ (รองรับไฟล์ .jpg, .png ฯลฯ)</li>
+            <li>คลิกที่ตราประทับ (วงกลม) เพื่อบันทึกความดีที่คุณทำ โดยตราประทับจะเปลี่ยนเป็นสีทองเมื่อถูกเลือก</li>
+            <li>หากต้องการยกเลิกตราประทับ ให้คลิกที่ตราประทับสีทองอีกครั้ง</li>
+            <li>เมื่อบันทึกความดีและอัปโหลดรูปภาพครบตามต้องการ คลิกปุ่ม "บันทึกเป็น PDF" เพื่อดาวน์โหลดพาสปอร์ต</li>
+            <li>ไฟล์ PDF จะถูกบันทึกอัตโนมัติในโฟลเดอร์ดาวน์โหลดของอุปกรณ์คุณ</li>
+            <li>กรุณาใส่ข้อมูลส่วนตัว (เช่น ชื่อ นามสกุล) ให้ครบถ้วนก่อนบันทึก</li>
+        </ul>
+    </div>
+
+    <script>
+        let uploadedImageDataUrl = 'https://via.placeholder.com/100x120'; // ค่าเริ่มต้น
+
+        // ฟังก์ชันสำหรับสลับสถานะตราประทับ
+        function toggleStamp(stamp) {
+            stamp.classList.toggle('active');
+        }
+
+        // ฟังก์ชันสำหรับอัปโหลดรูปภาพ
+        document.getElementById('image-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageDataUrl = e.target.result; // เก็บ Data URL ของรูปภาพ
+                    document.getElementById('profile-img').src = uploadedImageDataUrl; // อัปเดตภาพบนหน้าเว็บ
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ฟังก์ชันสำหรับบันทึกเป็น PDF ด้วย pdfmake
+        function saveAsPDF() {
+            // รวบรวมสถานะตราประทับ
+            const stamps = document.querySelectorAll('.stamp');
+            const stampStatus = Array.from(stamps).map(stamp => stamp.classList.contains('active'));
+
+            // กำหนดโครงสร้าง PDF
+            const docDefinition = {
+                pageSize: { width: 600, height: 400 },
+                pageOrientation: 'landscape',
+                background: [
+                    {
+                        color: '#2b3a67',
+                        canvas: [{ type: 'rect', x: 0, y: 0, w: 600, h: 400 }]
+                    }
+                ],
+                content: [
+                    // หน้าซ้าย
+                    {
+                        columns: [
+                            {
+                                width: 300,
+                                stack: [
+                                    { text: 'พาสปอร์ตความดี', style: 'header', alignment: 'center' },
+                                    { text: 'Good Deed Passport', style: 'subheader', alignment: 'center' },
+                                    { text: 'เลขที่/No: GDP-001-2025', style: 'subheader', alignment: 'center' },
+                                    {
+                                        image: uploadedImageDataUrl, // ใช้รูปภาพที่อัปโหลด
+                                        width: 100,
+                                        height: 120,
+                                        margin: [100, 20, 0, 10]
+                                    },
+                                    { text: 'ชื่อ: [ใส่ชื่อของคุณ]', style: 'info' },
+                                    { text: 'นามสกุล: [ใส่นามสกุล]', style: 'info' },
+                                    { text: 'วันที่ออก: 16 มีนาคม 2568', style: 'info' },
+                                    { text: 'วันหมดอายุ: 16 มีนาคม 2570', style: 'info' }
+                                ]
+                            },
+                            // เส้นประแบ่งหน้า
+                            {
+                                width: 2,
+                                canvas: [{ type: 'line', x1: 0, y1: 0, x2: 0, y2: 400, lineWidth: 2, dash: { length: 5 } }]
+                            },
+                            // หน้าขวา
+                            {
+                                width: 300,
+                                stack: [
+                                    { text: 'ตราประทับความดี', style: 'header', alignment: 'center' },
+                                    { text: 'Good Deed Stamps', style: 'subheader', alignment: 'center' },
+                                    {
+                                        columns: [
+                                            { text: stampStatus[0] ? '●' : '○', style: 'stamp', margin: [20, 20] },
+                                            { text: stampStatus[1] ? '●' : '○', style: 'stamp', margin: [20, 20] },
+                                            { text: stampStatus[2] ? '●' : '○', style: 'stamp', margin: [20, 20] }
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                            { text: stampStatus[3] ? '●' : '○', style: 'stamp', margin: [20, 0] },
+                                            { text: stampStatus[4] ? '●' : '○', style: 'stamp', margin: [20, 0] },
+                                            { text: stampStatus[5] ? '●' : '○', style: 'stamp', margin: [20, 0] }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                styles: {
+                    header: { fontSize: 24, bold: true, color: '#ffffff', margin: [0, 10] },
+                    subheader: { fontSize: 14, color: '#ffffff' },
+                    info: { fontSize: 14, color: '#ffffff', margin: [0, 5] },
+                    stamp: { fontSize: 40, color: '#ffffff' } // สีขาวสำหรับ ○, ทองสำหรับ ●
+                }
+            };
+
+            // สร้างและดาวน์โหลด PDF
+            pdfmake.createPdf(docDefinition).download('passport_good_deeds.pdf');
+        }
+    </script>
+</body>
+</html>
